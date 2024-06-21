@@ -56,7 +56,7 @@ public:
 
   void setAbsoluteSpeed(qreal absoluteSpeed = defaultSpeed);
 
-  [[nodiscard()]] QJsonObject serialize() const;
+  [[nodiscard]] QJsonObject serialize() const;
 
   void readForm(QJsonDocument &in);
 
