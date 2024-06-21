@@ -19,11 +19,13 @@ add_executable(Fractals main.cpp
         ../headers/FractalData.hpp
         ../headers/FractalPoint.hpp
         ../headers/MainWindow.hpp
+        ../headers/FractalWidget.hpp
 
         ../src/Complex3D.cpp
         ../src/FractalData.cpp
         ../src/FractalPoint.cpp
         ../src/MainWindow.cpp
+        ../src/FractalWidget.cpp
 
         ../ui/MainWindow.ui
 )
