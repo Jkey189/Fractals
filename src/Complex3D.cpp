@@ -8,7 +8,7 @@ Complex3D::Complex3D(qreal newX, qreal newY, qreal newZ) {
 }
 
 qreal Complex3D::abs() const {
-  return std::sqrt{x_ * x_ + y_ * y_ + z_ * z_};
+  return sqrt({x_ * x_ + y_ * y_ + z_ * z_});
 }
 
 qreal Complex3D::theta() const {
