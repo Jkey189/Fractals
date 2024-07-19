@@ -116,3 +116,67 @@ void FractalWidget::initializeGL() {
   elapsedTimer_->start();
   timer_->start;
 }
+
+void FractalWidget::initShaders() {
+  if (!program_.addShaderFromSourceFile(QOpenGLShader::Vertex, "fileName")) {
+    close();
+  }
+  if (!program_.addShaderFromSourceFile(QOpenGLShader::Fragment, "fileName")) {
+    close();
+  }
+  if (!program_.link()) {
+    close();
+  }
+  if (!program_.bind()) {
+    close();
+  }
+}
+
+void FractalWidget::resizeGL(int w, int h) {
+  qreal aspect = static_cast<qreal>(w) / static_cast<qreal>(h ? h : 1);
+
+  const qreal zNear = 3.0;
+  const qreal zFar = 7.0;
+  const qreal fov = 45.0;
+
+  projection_.setToIdentity();
+  projection_.perspective(fov, aspect, zNear, zFar);
+}
+
+void FractalWidget::paintGL() {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  QMatrix4x4 matrix;
+  matrix.translate(0.0, 0.0, fractalData_->zoomCoefficient);
+  matrix.lookAt(fractalData_->camera, -fractalData_->camera, pointAxisY_ - fractalData_->camera);
+
+  program_.setUniformValue("mvp_matrix", projection_ * matrix);
+
+  program_.setUniformValue("POWER", (GLint)fractalData_->n);
+  program_.setUniformValue("Resolution", dynamic_cast<QApplication*>(QCoreApplication::instance())->devicePixelRatio() * QVector2D(this->width(), this->height));
+  program_.setUniformValue("CriticalPointX", (GLfloat)fractalData_->x);
+  program_.setUniformValue("CriticalPointY", (GLfloat)fractalData_->y);
+  program_.setUniformValue("CriticalPointZ", (GLfloat)fractalData_->z);
+  program_.setUniformValue("TYPE", (GLint)fractalData_->type);
+  program_.setUniformValue("Ambience", transformColor(fractalData_->ambienceColor));
+  program_.setUniformValue("FractalColor", transformColor(fractalData_->fractalColor)); // "ColorFractal"
+  program_.setUniformValue("CameraPosition", fractalData_->camera);
+  program_.setUniformValue("ZoomCoefficient", (GLfloat)fractalData_->zoomCoefficient);
+
+  // draw
+  geometries_->drawGeometry(&program_);
+}
+
+void FractalWidget::setFractalData(FractalData* data) {
+  fractalData_ = data;
+}
+
+void FractalWidget::autoRotate() {
+  if (fractalData_->isRotating) {
+    auto nextPos = static_cast<qreal>(elapsedTimer_->elapsed());
+    qreal dx = (nextPos - autoRotatePos_) * fractalData_->absoluteSpeed;
+    autoRotatePos_ = nextPos;
+
+    rotateFractal({static_cast<float>(dx), 0.0});
+  }
+}
